@@ -156,7 +156,6 @@
       width: 78px;
       height: 118px;
       transform: translate(-50%, -50%);
-      transition: left 120ms linear, top 120ms linear;
       filter: drop-shadow(0 16px 10px rgba(0,0,0,0.28));
     }
     .player-shadow {
@@ -331,31 +330,57 @@
   <script>
     const player = document.getElementById('player');
     const position = { x: 50, y: 72 };
-    const step = 2.4;
+    const pressedKeys = new Set();
+    const speed = 22;
+    let lastFrame = performance.now();
 
     function renderPlayer() {
       player.style.left = `${position.x}%`;
       player.style.top = `${position.y}%`;
     }
 
-    function move(dx, dy) {
-      position.x = Math.max(8, Math.min(92, position.x + dx));
-      position.y = Math.max(18, Math.min(84, position.y + dy));
+    function isMoveKey(key) {
+      return ["arrowup", "arrowdown", "arrowleft", "arrowright", "z", "q", "s", "d", "w", "a"].includes(key);
+    }
+
+    function updatePlayer(deltaSeconds) {
+      let dx = 0;
+      let dy = 0;
+      if (pressedKeys.has('arrowup') || pressedKeys.has('z') || pressedKeys.has('w')) dy -= 1;
+      if (pressedKeys.has('arrowdown') || pressedKeys.has('s')) dy += 1;
+      if (pressedKeys.has('arrowleft') || pressedKeys.has('q') || pressedKeys.has('a')) dx -= 1;
+      if (pressedKeys.has('arrowright') || pressedKeys.has('d')) dx += 1;
+      if (!dx && !dy) return;
+      const length = Math.hypot(dx, dy) || 1;
+      position.x = Math.max(8, Math.min(92, position.x + ((dx / length) * speed * deltaSeconds)));
+      position.y = Math.max(18, Math.min(84, position.y + ((dy / length) * speed * deltaSeconds)));
       renderPlayer();
+    }
+
+    function tick(now) {
+      const deltaSeconds = Math.min((now - lastFrame) / 1000, 0.033);
+      lastFrame = now;
+      updatePlayer(deltaSeconds);
+      requestAnimationFrame(tick);
     }
 
     window.addEventListener('keydown', event => {
       const key = event.key.toLowerCase();
-      if (["arrowup", "arrowdown", "arrowleft", "arrowright", "z", "q", "s", "d", "w", "a"].includes(key)) {
+      if (isMoveKey(key)) {
         event.preventDefault();
+        pressedKeys.add(key);
       }
-      if (key === 'arrowup' || key === 'z' || key === 'w') move(0, -step);
-      if (key === 'arrowdown' || key === 's') move(0, step);
-      if (key === 'arrowleft' || key === 'q' || key === 'a') move(-step, 0);
-      if (key === 'arrowright' || key === 'd') move(step, 0);
     });
 
+    window.addEventListener('keyup', event => {
+      const key = event.key.toLowerCase();
+      pressedKeys.delete(key);
+    });
+
+    window.addEventListener('blur', () => pressedKeys.clear());
+
     renderPlayer();
+    requestAnimationFrame(tick);
   </script>
 </body>
 </html>

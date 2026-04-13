@@ -7,79 +7,341 @@
   <style>
     :root {
       color-scheme: dark;
-      --bg: #0f172a;
+      --bg: #0b1220;
       --panel: rgba(15, 23, 42, 0.88);
       --line: rgba(255,255,255,0.08);
-      --text: #e5eefc;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
+      --text: #ecfdf5;
+      --muted: #a7f3d0;
+      --accent: #34d399;
+      --accent-2: #22c55e;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       min-height: 100vh;
       font-family: Inter, system-ui, sans-serif;
-      background: radial-gradient(circle at top, #1e293b, var(--bg) 60%);
+      background:
+        radial-gradient(circle at top, rgba(34,197,94,0.18), transparent 30%),
+        linear-gradient(180deg, #0f172a, #020617 72%);
       color: var(--text);
-      display: grid;
-      place-items: center;
       padding: 24px;
     }
     .app {
-      width: min(1100px, 100%);
+      width: min(1280px, 100%);
+      margin: 0 auto;
       display: grid;
-      gap: 16px;
+      gap: 18px;
     }
     .panel {
       background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: 20px;
+      border-radius: 24px;
       padding: 20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+      box-shadow: 0 24px 70px rgba(0,0,0,0.35);
     }
     .hero {
-      display: grid;
-      gap: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: end;
+      flex-wrap: wrap;
     }
-    .hero h1 { margin: 0; font-size: 48px; }
-    .hero p { margin: 0; color: var(--muted); font-size: 18px; }
-    .status {
+    .hero h1 { margin: 0; font-size: 52px; }
+    .hero p { margin: 8px 0 0; color: var(--muted); font-size: 18px; }
+    .badge {
       display: inline-flex;
-      width: fit-content;
+      align-items: center;
+      gap: 8px;
       padding: 8px 12px;
       border-radius: 999px;
-      border: 1px solid rgba(56,189,248,0.35);
-      background: rgba(56,189,248,0.12);
-      color: #bae6fd;
+      background: rgba(52,211,153,0.14);
+      border: 1px solid rgba(52,211,153,0.32);
+      color: #d1fae5;
       font-size: 14px;
     }
-    .steps {
+    .layout {
       display: grid;
-      gap: 12px;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 18px;
     }
-    .step {
-      border: 1px solid var(--line);
+    .scene {
+      position: relative;
+      min-height: 700px;
+      overflow: hidden;
+      border-radius: 28px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background:
+        radial-gradient(circle at 50% 12%, rgba(255,255,255,0.2), transparent 20%),
+        linear-gradient(180deg, #7dd3fc 0%, #86efac 30%, #4d7c0f 31%, #365314 100%);
+      cursor: crosshair;
+    }
+    .mist {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.18), transparent 18%),
+        radial-gradient(circle at 80% 24%, rgba(255,255,255,0.14), transparent 16%),
+        radial-gradient(circle at 55% 14%, rgba(255,255,255,0.12), transparent 20%);
+      pointer-events: none;
+    }
+    .tree {
+      position: absolute;
+      width: 120px;
+      height: 180px;
+      pointer-events: none;
+      filter: drop-shadow(0 16px 12px rgba(0,0,0,0.25));
+    }
+    .tree::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      width: 26px;
+      height: 78px;
+      transform: translateX(-50%);
       border-radius: 16px;
-      padding: 16px;
-      background: rgba(255,255,255,0.03);
+      background: linear-gradient(180deg, #7c3f00, #4a2d16);
     }
-    .step strong { display: block; margin-bottom: 8px; }
+    .tree::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 12px;
+      width: 118px;
+      height: 118px;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 35% 30%, #bbf7d0, #4ade80 36%, #15803d 72%);
+      box-shadow:
+        -30px 18px 0 -8px #22c55e,
+        30px 18px 0 -8px #16a34a,
+        0 36px 0 -10px #166534;
+    }
+    .bush {
+      position: absolute;
+      width: 90px;
+      height: 54px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 35% 30%, #bbf7d0, #22c55e 40%, #166534 90%);
+      box-shadow: 0 14px 16px rgba(0,0,0,0.2);
+      pointer-events: none;
+    }
+    .path {
+      position: absolute;
+      left: 20%;
+      right: 20%;
+      bottom: 8%;
+      top: 34%;
+      background: linear-gradient(180deg, #fde68a, #ca8a04 80%);
+      clip-path: polygon(42% 0, 58% 0, 68% 16%, 64% 44%, 76% 100%, 24% 100%, 36% 44%, 32% 16%);
+      opacity: 0.88;
+      filter: saturate(0.8);
+    }
+    .player {
+      position: absolute;
+      width: 78px;
+      height: 118px;
+      transform: translate(-50%, -50%);
+      transition: left 120ms linear, top 120ms linear;
+      filter: drop-shadow(0 16px 10px rgba(0,0,0,0.28));
+    }
+    .player-shadow {
+      position: absolute;
+      left: 50%;
+      bottom: 4px;
+      width: 44px;
+      height: 14px;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      background: rgba(15,23,42,0.28);
+    }
+    .player-head {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      width: 30px;
+      height: 30px;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      background: #fde68a;
+      border: 2px solid rgba(15,23,42,0.12);
+      z-index: 3;
+    }
+    .player-hair {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      width: 34px;
+      height: 18px;
+      transform: translateX(-50%);
+      border-radius: 18px 18px 10px 10px;
+      background: #854d0e;
+      z-index: 4;
+    }
+    .player-body {
+      position: absolute;
+      top: 34px;
+      left: 50%;
+      width: 42px;
+      height: 40px;
+      transform: translateX(-50%);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #34d399, #0f766e);
+      z-index: 2;
+    }
+    .player-arm, .player-leg {
+      position: absolute;
+      background: #fde68a;
+      border-radius: 999px;
+    }
+    .player-arm {
+      top: 40px;
+      width: 12px;
+      height: 34px;
+      z-index: 1;
+    }
+    .player-arm.left { left: 14px; transform: rotate(12deg); }
+    .player-arm.right { right: 14px; transform: rotate(-12deg); }
+    .player-leg {
+      top: 70px;
+      width: 14px;
+      height: 36px;
+      background: #1e293b;
+    }
+    .player-leg.left { left: 25px; }
+    .player-leg.right { right: 25px; }
+    .player-label {
+      position: absolute;
+      bottom: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.72);
+      border: 1px solid rgba(255,255,255,0.1);
+      font-size: 12px;
+    }
+    .sidebar {
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+    .hint {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .keys {
+      display: grid;
+      grid-template-columns: repeat(3, 52px);
+      gap: 8px;
+      justify-content: center;
+      margin-top: 8px;
+    }
+    .key {
+      height: 52px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.05);
+      font-weight: 700;
+    }
+    .key.empty { opacity: 0; }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .scene { min-height: 520px; }
+    }
   </style>
 </head>
 <body>
   <main class="app">
     <section class="panel hero">
-      <div class="status">Projet neuf</div>
-      <h1>Aslan</h1>
-      <p>Prototype de jeu vidéo style MMO, reconstruit calmement, étape par étape.</p>
+      <div>
+        <div class="badge">Aslan • étape 1</div>
+        <h1>Forêt cartoon</h1>
+        <p>Première scène jouable, moitié 2D moitié faux volume, avec déplacement au clavier.</p>
+      </div>
+      <div class="hint">Déplace le personnage avec les flèches du clavier ou ZQSD/WASD.</div>
     </section>
-    <section class="panel steps">
-      <div class="step"><strong>Étape 1</strong>Base web propre</div>
-      <div class="step"><strong>Étape 2</strong>Map simple et personnage visible</div>
-      <div class="step"><strong>Étape 3</strong>Déplacement fiable</div>
-      <div class="step"><strong>Étape 4</strong>Combat minimal seulement après validation</div>
+
+    <section class="layout">
+      <section class="panel scene" id="scene">
+        <div class="mist"></div>
+        <div class="path"></div>
+        <div class="tree" style="left: 4%; top: 18%; transform: scale(1.05);"></div>
+        <div class="tree" style="left: 22%; top: 8%; transform: scale(0.92);"></div>
+        <div class="tree" style="left: 74%; top: 10%; transform: scale(1.12);"></div>
+        <div class="tree" style="left: 82%; top: 28%; transform: scale(0.9);"></div>
+        <div class="tree" style="left: 10%; top: 52%; transform: scale(1.18);"></div>
+        <div class="tree" style="left: 76%; top: 56%; transform: scale(1.14);"></div>
+        <div class="bush" style="left: 18%; top: 74%;"></div>
+        <div class="bush" style="left: 64%; top: 78%;"></div>
+        <div class="bush" style="left: 58%; top: 24%; width: 72px;"></div>
+
+        <div class="player" id="player" style="left: 50%; top: 72%;">
+          <div class="player-shadow"></div>
+          <div class="player-hair"></div>
+          <div class="player-head"></div>
+          <div class="player-body"></div>
+          <div class="player-arm left"></div>
+          <div class="player-arm right"></div>
+          <div class="player-leg left"></div>
+          <div class="player-leg right"></div>
+          <div class="player-label">Aslan</div>
+        </div>
+      </section>
+
+      <aside class="sidebar">
+        <section class="panel">
+          <h3>Contrôles</h3>
+          <div class="keys">
+            <div class="key empty"></div>
+            <div class="key">↑</div>
+            <div class="key empty"></div>
+            <div class="key">←</div>
+            <div class="key">↓</div>
+            <div class="key">→</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h3>But</h3>
+          <p class="hint">On valide d’abord un décor forêt cartoon et un déplacement clavier fiable. Rien d’autre pour l’instant.</p>
+        </section>
+      </aside>
     </section>
   </main>
+
+  <script>
+    const player = document.getElementById('player');
+    const position = { x: 50, y: 72 };
+    const step = 2.4;
+
+    function renderPlayer() {
+      player.style.left = `${position.x}%`;
+      player.style.top = `${position.y}%`;
+    }
+
+    function move(dx, dy) {
+      position.x = Math.max(8, Math.min(92, position.x + dx));
+      position.y = Math.max(18, Math.min(84, position.y + dy));
+      renderPlayer();
+    }
+
+    window.addEventListener('keydown', event => {
+      const key = event.key.toLowerCase();
+      if (["arrowup", "arrowdown", "arrowleft", "arrowright", "z", "q", "s", "d", "w", "a"].includes(key)) {
+        event.preventDefault();
+      }
+      if (key === 'arrowup' || key === 'z' || key === 'w') move(0, -step);
+      if (key === 'arrowdown' || key === 's') move(0, step);
+      if (key === 'arrowleft' || key === 'q' || key === 'a') move(-step, 0);
+      if (key === 'arrowright' || key === 'd') move(step, 0);
+    });
+
+    renderPlayer();
+  </script>
 </body>
 </html>

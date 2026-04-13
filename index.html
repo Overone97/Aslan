@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aslan</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --panel: rgba(15, 23, 42, 0.88);
+      --line: rgba(255,255,255,0.08);
+      --text: #e5eefc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, system-ui, sans-serif;
+      background: radial-gradient(circle at top, #1e293b, var(--bg) 60%);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .app {
+      width: min(1100px, 100%);
+      display: grid;
+      gap: 16px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+    .hero {
+      display: grid;
+      gap: 12px;
+    }
+    .hero h1 { margin: 0; font-size: 48px; }
+    .hero p { margin: 0; color: var(--muted); font-size: 18px; }
+    .status {
+      display: inline-flex;
+      width: fit-content;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(56,189,248,0.35);
+      background: rgba(56,189,248,0.12);
+      color: #bae6fd;
+      font-size: 14px;
+    }
+    .steps {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+    .step {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      background: rgba(255,255,255,0.03);
+    }
+    .step strong { display: block; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="panel hero">
+      <div class="status">Projet neuf</div>
+      <h1>Aslan</h1>
+      <p>Prototype de jeu vidéo style MMO, reconstruit calmement, étape par étape.</p>
+    </section>
+    <section class="panel steps">
+      <div class="step"><strong>Étape 1</strong>Base web propre</div>
+      <div class="step"><strong>Étape 2</strong>Map simple et personnage visible</div>
+      <div class="step"><strong>Étape 3</strong>Déplacement fiable</div>
+      <div class="step"><strong>Étape 4</strong>Combat minimal seulement après validation</div>
+    </section>
+  </main>
+</body>
+</html>

@@ -157,6 +157,11 @@
       height: 118px;
       transform: translate(-50%, -50%);
       filter: drop-shadow(0 16px 10px rgba(0,0,0,0.28));
+      --walk-arm-left: rotate(12deg);
+      --walk-arm-right: rotate(-12deg);
+      --walk-leg-left: rotate(0deg);
+      --walk-leg-right: rotate(0deg);
+      --walk-bob: 0px;
     }
     .player-shadow {
       position: absolute;
@@ -170,7 +175,7 @@
     }
     .player-head {
       position: absolute;
-      top: 10px;
+      top: calc(10px + var(--walk-bob));
       left: 50%;
       width: 30px;
       height: 30px;
@@ -182,7 +187,7 @@
     }
     .player-hair {
       position: absolute;
-      top: 8px;
+      top: calc(8px + var(--walk-bob));
       left: 50%;
       width: 34px;
       height: 18px;
@@ -193,7 +198,7 @@
     }
     .player-body {
       position: absolute;
-      top: 34px;
+      top: calc(34px + var(--walk-bob));
       left: 50%;
       width: 42px;
       height: 40px;
@@ -213,16 +218,31 @@
       height: 34px;
       z-index: 1;
     }
-    .player-arm.left { left: 14px; transform: rotate(12deg); }
-    .player-arm.right { right: 14px; transform: rotate(-12deg); }
+    .player-arm.left {
+      left: 14px;
+      transform-origin: top center;
+      transform: var(--walk-arm-left);
+    }
+    .player-arm.right {
+      right: 14px;
+      transform-origin: top center;
+      transform: var(--walk-arm-right);
+    }
     .player-leg {
-      top: 70px;
+      top: calc(70px + var(--walk-bob));
       width: 14px;
       height: 36px;
       background: #1e293b;
+      transform-origin: top center;
     }
-    .player-leg.left { left: 25px; }
-    .player-leg.right { right: 25px; }
+    .player-leg.left {
+      left: 25px;
+      transform: var(--walk-leg-left);
+    }
+    .player-leg.right {
+      right: 25px;
+      transform: var(--walk-leg-right);
+    }
     .player-label {
       position: absolute;
       bottom: -22px;
@@ -270,7 +290,7 @@
 <body>
   <main class="app">
     <section class="panel hero">
-      <div class="version-badge">v0.1.1</div>
+      <div class="version-badge">v0.1.2</div>
       <div>
         <div class="badge">Aslan • étape 1</div>
         <h1>Forêt cartoon</h1>
@@ -333,10 +353,27 @@
     const pressedKeys = new Set();
     const speed = 22;
     let lastFrame = performance.now();
+    let walkTime = 0;
 
     function renderPlayer() {
       player.style.left = `${position.x}%`;
       player.style.top = `${position.y}%`;
+    }
+
+    function renderWalkAnimation(isMoving, deltaSeconds) {
+      if (isMoving) {
+        walkTime += deltaSeconds * 11;
+      } else {
+        walkTime += (0 - walkTime) * Math.min(deltaSeconds * 10, 1);
+      }
+
+      const swing = Math.sin(walkTime) * 20;
+      const bob = Math.abs(Math.sin(walkTime)) * 4;
+      player.style.setProperty('--walk-arm-left', `rotate(${12 + swing}deg)`);
+      player.style.setProperty('--walk-arm-right', `rotate(${-12 - swing}deg)`);
+      player.style.setProperty('--walk-leg-left', `rotate(${-swing}deg)`);
+      player.style.setProperty('--walk-leg-right', `rotate(${swing}deg)`);
+      player.style.setProperty('--walk-bob', `${isMoving ? bob : bob * 0.25}px`);
     }
 
     function isMoveKey(key) {
@@ -350,17 +387,25 @@
       if (pressedKeys.has('arrowdown') || pressedKeys.has('s')) dy += 1;
       if (pressedKeys.has('arrowleft') || pressedKeys.has('q') || pressedKeys.has('a')) dx -= 1;
       if (pressedKeys.has('arrowright') || pressedKeys.has('d')) dx += 1;
-      if (!dx && !dy) return;
+      const isMoving = Boolean(dx || dy);
+      if (!isMoving) {
+        renderWalkAnimation(false, deltaSeconds);
+        return;
+      }
       const length = Math.hypot(dx, dy) || 1;
       position.x = Math.max(8, Math.min(92, position.x + ((dx / length) * speed * deltaSeconds)));
       position.y = Math.max(18, Math.min(84, position.y + ((dy / length) * speed * deltaSeconds)));
       renderPlayer();
+      renderWalkAnimation(true, deltaSeconds);
     }
 
     function tick(now) {
       const deltaSeconds = Math.min((now - lastFrame) / 1000, 0.033);
       lastFrame = now;
       updatePlayer(deltaSeconds);
+      if (!pressedKeys.size) {
+        renderWalkAnimation(false, deltaSeconds);
+      }
       requestAnimationFrame(tick);
     }
 
@@ -380,6 +425,7 @@
     window.addEventListener('blur', () => pressedKeys.clear());
 
     renderPlayer();
+    renderWalkAnimation(false, 0);
     requestAnimationFrame(tick);
   </script>
 </body>

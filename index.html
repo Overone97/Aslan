@@ -132,6 +132,24 @@
       filter: saturate(0.9);
       box-shadow: inset 0 8px 14px rgba(255,255,255,0.18), 0 18px 24px rgba(0,0,0,0.18);
     }
+    .scene-water {
+      position: absolute;
+      border-radius: 999px;
+      box-shadow: inset 0 10px 18px rgba(255,255,255,0.18), 0 18px 24px rgba(0,0,0,0.18);
+      opacity: 0.96;
+    }
+    .scene-bridge {
+      position: absolute;
+      border-radius: 20px;
+      box-shadow: 0 18px 24px rgba(0,0,0,0.18);
+      opacity: 0.98;
+    }
+    .scene-grove {
+      position: absolute;
+      border-radius: 999px;
+      box-shadow: 0 18px 24px rgba(0,0,0,0.18);
+      opacity: 0.96;
+    }
     .decor-layer {
       position: absolute;
       inset: 0;
@@ -360,6 +378,7 @@
         <div class="mist"></div>
         <div class="hill back" id="hillBack"></div>
         <div class="path" id="path"></div>
+        <div id="specialLayer"></div>
         <div class="decor-layer" id="decorLayer"></div>
         <div class="hill front" id="hillFront"></div>
         <div class="map-title" id="mapTitle"></div>
@@ -634,6 +653,7 @@
     const hillBack = document.getElementById('hillBack');
     const hillFront = document.getElementById('hillFront');
     const path = document.getElementById('path');
+    const specialLayer = document.getElementById('specialLayer');
     const decorLayer = document.getElementById('decorLayer');
     const mapTitle = document.getElementById('mapTitle');
     const edgeIndicators = document.getElementById('edgeIndicators');
@@ -723,6 +743,47 @@
       });
     }
 
+    function renderSpecialLayer(map) {
+      specialLayer.innerHTML = '';
+      path.style.display = 'block';
+      path.style.left = '20%';
+      path.style.right = '20%';
+      path.style.top = '34%';
+      path.style.bottom = '8%';
+      path.style.clipPath = 'polygon(42% 0, 58% 0, 68% 16%, 64% 44%, 76% 100%, 24% 100%, 36% 44%, 32% 16%)';
+
+      if (map.theme === 'sakuraLagoon') {
+        path.style.display = 'none';
+        specialLayer.innerHTML = `
+          <div class="scene-water" style="left:7%;top:40%;width:36%;height:38%;background:radial-gradient(circle at 35% 35%, #67e8f9, #0891b2 58%, #164e63 100%);"></div>
+          <div class="scene-water" style="right:7%;top:40%;width:36%;height:38%;background:radial-gradient(circle at 35% 35%, #67e8f9, #0891b2 58%, #164e63 100%);"></div>
+          <div class="scene-bridge" style="left:46%;top:28%;width:8%;height:46%;background:linear-gradient(180deg, #f5deb0, #c8a96b 70%, #a16207 100%);"></div>
+          <div class="scene-bridge" style="left:44%;top:42%;width:12%;height:8%;background:linear-gradient(180deg, #8b5a2b, #5b3a1a);"></div>
+          <div class="scene-grove" style="left:4%;top:8%;width:30%;height:20%;background:radial-gradient(circle at 35% 35%, #bef264, #65a30d 52%, #365314 100%);"></div>
+          <div class="scene-grove" style="left:34%;top:6%;width:24%;height:18%;background:radial-gradient(circle at 35% 35%, #d9f99d, #84cc16 52%, #4d7c0f 100%);"></div>
+          <div class="scene-grove" style="right:4%;top:8%;width:30%;height:20%;background:radial-gradient(circle at 35% 35%, #bef264, #65a30d 52%, #365314 100%);"></div>
+        `;
+        return;
+      }
+
+      if (map.theme === 'garden') {
+        path.style.display = 'none';
+        specialLayer.innerHTML = `
+          <div class="scene-grove" style="left:2%;top:4%;width:96%;height:22%;background:radial-gradient(circle at 50% 40%, #a3e635, #4d7c0f 65%, #365314 100%);"></div>
+          <div class="scene-bridge" style="left:22%;top:44%;width:34%;height:7%;transform:rotate(-18deg);background:linear-gradient(180deg, #d9c27a, #b8954e);"></div>
+          <div class="scene-bridge" style="left:54%;top:50%;width:30%;height:7%;transform:rotate(22deg);background:linear-gradient(180deg, #d9c27a, #b8954e);"></div>
+          <div class="scene-bridge" style="left:70%;top:46%;width:10%;height:2%;background:linear-gradient(180deg, #8b5a2b, #5b3a1a);"></div>
+          <div class="scene-grove" style="left:10%;top:62%;width:18%;height:14%;background:radial-gradient(circle at 35% 35%, #bef264, #65a30d 52%, #365314 100%);"></div>
+          <div class="scene-grove" style="left:38%;top:58%;width:24%;height:18%;background:radial-gradient(circle at 35% 35%, #a3e635, #65a30d 52%, #365314 100%);"></div>
+          <div class="scene-grove" style="right:8%;top:64%;width:16%;height:24%;background:linear-gradient(180deg, #7c8f3a, #365314);"></div>
+          <div class="scene-bridge" style="left:12%;top:28%;width:3%;height:16%;background:linear-gradient(180deg, #8b5a2b, #4a2d16);"></div>
+          <div class="scene-bridge" style="left:38%;top:24%;width:3%;height:12%;background:linear-gradient(180deg, #f5deb0, #c8a96b);"></div>
+          <div class="scene-bridge" style="left:56%;top:22%;width:3%;height:12%;background:linear-gradient(180deg, #f5deb0, #c8a96b);"></div>
+        `;
+        return;
+      }
+    }
+
     function renderMap() {
       const map = maps[state.mapKey];
       const theme = themeStyles[map.theme];
@@ -732,6 +793,7 @@
       path.style.background = theme.path;
       mapTitle.textContent = map.name;
       statusLine.textContent = `Carte actuelle : ${map.name}`;
+      renderSpecialLayer(map);
       renderDecor(map);
       renderEdges(map);
       renderMiniMap();

@@ -95,6 +95,9 @@
         linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.04) 58%, rgba(0,0,0,0.1) 100%);
       pointer-events: none;
     }
+    .scene.reference-map::before {
+      background: linear-gradient(180deg, rgba(15,23,42,0.08), rgba(15,23,42,0.18));
+    }
     .mist {
       position: absolute;
       inset: 0;
@@ -364,7 +367,7 @@
 <body>
   <main class="app">
     <section class="panel hero">
-      <div class="version-badge">v0.3.0</div>
+      <div class="version-badge">v0.3.1</div>
       <div>
         <div class="badge">Aslan • monde 3x3</div>
         <h1>Arcade kawai zone par zone</h1>
@@ -486,25 +489,9 @@
       '2,1': {
         name: 'Jardin sakura',
         theme: 'garden',
+        backgroundImage: 'url("./assets/maps/jardin-sakura.jpg")',
         exits: { up: '2,0', left: '1,1', down: '2,2' },
-        decor: [
-          { type: 'circle', left: 10, top: 16, size: 104, background: 'radial-gradient(circle at 35% 35%, #bbf7d0, #4ade80 52%, #166534 100%)' },
-          { type: 'circle', left: 24, top: 14, size: 116, background: 'radial-gradient(circle at 35% 35%, #d9f99d, #65a30d 52%, #365314 100%)' },
-          { type: 'circle', left: 40, top: 18, size: 112, background: 'radial-gradient(circle at 35% 35%, #bbf7d0, #4ade80 52%, #166534 100%)' },
-          { type: 'circle', left: 58, top: 16, size: 120, background: 'radial-gradient(circle at 35% 35%, #d9f99d, #65a30d 52%, #365314 100%)' },
-          { type: 'circle', left: 80, top: 14, size: 114, background: 'radial-gradient(circle at 35% 35%, #bbf7d0, #4ade80 52%, #166534 100%)' },
-          { type: 'circle', left: 96, top: 16, size: 102, background: 'radial-gradient(circle at 35% 35%, #d9f99d, #65a30d 52%, #365314 100%)' },
-          { type: 'card', left: 16, top: 38, width: 18, height: 88, background: 'linear-gradient(180deg, #8b5a2b, #4a2d16)', rotate: -4 },
-          { type: 'card', left: 36, top: 36, width: 20, height: 82, background: 'linear-gradient(180deg, #f8e7b5, #d6b87a 55%, #a78b5a 100%)', rotate: 4 },
-          { type: 'card', left: 52, top: 34, width: 20, height: 80, background: 'linear-gradient(180deg, #f8e7b5, #d6b87a 55%, #a78b5a 100%)', rotate: -6 },
-          { type: 'card', left: 30, top: 58, width: 220, height: 42, background: 'linear-gradient(180deg, #d9c27a, #b8954e)', rotate: -22 },
-          { type: 'card', left: 72, top: 58, width: 210, height: 42, background: 'linear-gradient(180deg, #d9c27a, #b8954e)', rotate: 22 },
-          { type: 'card', left: 78, top: 52, width: 76, height: 8, background: 'linear-gradient(180deg, #8b5a2b, #5b3a1a)', rotate: 0 },
-          { type: 'card', left: 22, top: 74, width: 70, height: 68, background: 'radial-gradient(circle at 35% 35%, #bbf7d0, #84cc16 52%, #3f6212 100%)', rotate: 0 },
-          { type: 'card', left: 48, top: 70, width: 92, height: 76, background: 'radial-gradient(circle at 35% 35%, #a3e635, #65a30d 52%, #365314 100%)', rotate: 0 },
-          { type: 'card', left: 88, top: 72, width: 82, height: 108, background: 'linear-gradient(180deg, #7c8f3a, #365314)', rotate: 0 },
-          { type: 'label', left: 78, top: 54, text: 'jardin sakura' }
-        ]
+        decor: []
       },
       '0,2': {
         name: 'Champs melon',
@@ -533,17 +520,9 @@
       '2,2': {
         name: 'Lagune sakura',
         theme: 'sakuraLagoon',
+        backgroundImage: 'url("./assets/maps/lagune-sakura.jpg")',
         exits: { up: '2,1', left: '1,2' },
-        decor: [
-          { type: 'circle', left: 14, top: 24, size: 74, background: 'radial-gradient(circle at 35% 35%, #bef264, #65a30d 52%, #365314 100%)' },
-          { type: 'circle', left: 46, top: 24, size: 64, background: 'radial-gradient(circle at 35% 35%, #bef264, #65a30d 52%, #365314 100%)' },
-          { type: 'circle', left: 84, top: 22, size: 92, background: 'radial-gradient(circle at 35% 35%, #bef264, #65a30d 52%, #365314 100%)' },
-          { type: 'circle', left: 24, top: 48, size: 58, background: 'radial-gradient(circle at 35% 35%, #bef264, #65a30d 52%, #365314 100%)' },
-          { type: 'circle', left: 68, top: 44, size: 52, background: 'radial-gradient(circle at 35% 35%, #bef264, #65a30d 52%, #365314 100%)' },
-          { type: 'circle', left: 90, top: 56, size: 34, background: 'radial-gradient(circle at 35% 35%, #bef264, #65a30d 52%, #365314 100%)' },
-          { type: 'label', left: 50, top: 8, text: 'jardin sakura' },
-          { type: 'label', left: 8, top: 56, text: 'sentier nougat' }
-        ]
+        decor: []
       },
     };
 
@@ -750,28 +729,18 @@
       path.style.bottom = '8%';
       path.style.clipPath = 'polygon(42% 0, 58% 0, 68% 16%, 64% 44%, 76% 100%, 24% 100%, 36% 44%, 32% 16%)';
 
+      if (map.backgroundImage) {
+        path.style.display = 'none';
+        return;
+      }
+
       if (map.theme === 'sakuraLagoon') {
         path.style.display = 'none';
-        specialLayer.innerHTML = `
-          <div class="scene-water" style="left:4%;top:16%;width:92%;height:72%;background:radial-gradient(circle at 50% 50%, #38bdf8, #0891b2 60%, #164e63 100%);"></div>
-          <div class="scene-water" style="left:18%;top:42%;width:28%;height:24%;background:radial-gradient(circle at 50% 50%, #67e8f9, #22d3ee 60%, rgba(8,47,73,0.2) 100%);"></div>
-          <div class="scene-water" style="right:18%;top:42%;width:28%;height:24%;background:radial-gradient(circle at 50% 50%, #67e8f9, #22d3ee 60%, rgba(8,47,73,0.2) 100%);"></div>
-          <div class="scene-bridge" style="left:42%;top:28%;width:16%;height:56%;background:linear-gradient(180deg, #f5deb0, #d6b87a 60%, #b08952 100%);clip-path:polygon(24% 0, 76% 0, 100% 18%, 88% 100%, 12% 100%, 0 18%);"></div>
-          <div class="scene-bridge" style="left:43%;top:40%;width:14%;height:4%;background:linear-gradient(180deg, #a16207, #713f12);"></div>
-          <div class="scene-bridge" style="left:0%;top:54%;width:18%;height:10%;background:linear-gradient(180deg, #6b7280, #4b5563);clip-path:polygon(0 100%, 18% 26%, 100% 42%, 100% 58%, 16% 76%);"></div>
-        `;
         return;
       }
 
       if (map.theme === 'garden') {
         path.style.display = 'none';
-        specialLayer.innerHTML = `
-          <div class="scene-grove" style="left:0%;top:0%;width:100%;height:24%;background:radial-gradient(circle at 50% 40%, #a3e635, #4d7c0f 65%, #365314 100%);"></div>
-          <div class="scene-bridge" style="left:16%;top:50%;width:34%;height:6%;transform:rotate(-22deg);background:linear-gradient(180deg, #d9c27a, #b8954e);"></div>
-          <div class="scene-bridge" style="left:50%;top:50%;width:30%;height:6%;transform:rotate(18deg);background:linear-gradient(180deg, #d9c27a, #b8954e);"></div>
-          <div class="scene-bridge" style="left:74%;top:50%;width:18%;height:6%;transform:rotate(-28deg);background:linear-gradient(180deg, #d9c27a, #b8954e);"></div>
-          <div class="scene-bridge" style="left:72%;top:48%;width:8%;height:2%;background:linear-gradient(180deg, #8b5a2b, #5b3a1a);"></div>
-        `;
         return;
       }
     }
@@ -779,7 +748,10 @@
     function renderMap() {
       const map = maps[state.mapKey];
       const theme = themeStyles[map.theme];
-      scene.style.background = theme.scene;
+      scene.classList.toggle('reference-map', Boolean(map.backgroundImage));
+      scene.style.background = map.backgroundImage
+        ? `${theme.scene}, ${map.backgroundImage} center/cover no-repeat`
+        : theme.scene;
       hillBack.style.background = theme.back;
       hillFront.style.background = theme.front;
       path.style.background = theme.path;

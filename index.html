@@ -457,10 +457,19 @@
       facing: 1,
     };
 
-    function getMapCoords(key) {
-      const [x, y] = key.split(',').map(Number);
-      return { x, y };
-    }
+    const WORLD_BOUNDS = {
+      left: 5,
+      right: 95,
+      top: 10,
+      bottom: 90,
+    };
+
+    const TRANSITION_SPAWN = {
+      left: { x: 92, y: null },
+      right: { x: 8, y: null },
+      up: { x: null, y: 86 },
+      down: { x: null, y: 14 },
+    };
 
     function renderMiniMap() {
       const current = state.mapKey;
@@ -542,17 +551,23 @@
       return ['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'z', 'q', 's', 'd', 'w', 'a'].includes(key);
     }
 
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
     function transitionMap(direction) {
       const currentMap = maps[state.mapKey];
       const nextKey = currentMap.exits[direction];
       if (!nextKey) return;
+      const spawn = TRANSITION_SPAWN[direction];
       state.mapKey = nextKey;
-      if (direction === 'left') state.position.x = 90;
-      if (direction === 'right') state.position.x = 10;
-      if (direction === 'up') state.position.y = 82;
-      if (direction === 'down') state.position.y = 20;
+      if (spawn.x !== null) state.position.x = spawn.x;
+      if (spawn.y !== null) state.position.y = spawn.y;
+      state.position.x = clamp(state.position.x, WORLD_BOUNDS.left, WORLD_BOUNDS.right);
+      state.position.y = clamp(state.position.y, WORLD_BOUNDS.top, WORLD_BOUNDS.bottom);
       renderMap();
       renderPlayer();
+      renderWalkAnimation(true, 0.016);
     }
 
     function updatePlayer(deltaSeconds) {
@@ -573,21 +588,21 @@
       state.position.y += (dy / length) * state.speed * deltaSeconds;
 
       const exits = maps[state.mapKey].exits;
-      if (state.position.x < 8) {
+      if (state.position.x <= WORLD_BOUNDS.left) {
         if (exits.left) return transitionMap('left');
-        state.position.x = 8;
+        state.position.x = WORLD_BOUNDS.left;
       }
-      if (state.position.x > 92) {
+      if (state.position.x >= WORLD_BOUNDS.right) {
         if (exits.right) return transitionMap('right');
-        state.position.x = 92;
+        state.position.x = WORLD_BOUNDS.right;
       }
-      if (state.position.y < 18) {
+      if (state.position.y <= WORLD_BOUNDS.top) {
         if (exits.up) return transitionMap('up');
-        state.position.y = 18;
+        state.position.y = WORLD_BOUNDS.top;
       }
-      if (state.position.y > 84) {
+      if (state.position.y >= WORLD_BOUNDS.bottom) {
         if (exits.down) return transitionMap('down');
-        state.position.y = 84;
+        state.position.y = WORLD_BOUNDS.bottom;
       }
 
       renderPlayer();

@@ -199,10 +199,10 @@
     }
     .player {
       position: absolute;
-      width: 122px;
-      height: 168px;
+      width: 74px;
+      height: 102px;
       transform: translate(-50%, -50%) scaleX(var(--player-facing, 1));
-      filter: drop-shadow(0 20px 14px rgba(0,0,0,0.3));
+      filter: drop-shadow(0 12px 10px rgba(0,0,0,0.28));
       --walk-arm-left: rotate(10deg);
       --walk-arm-right: rotate(-10deg);
       --walk-forearm-left: rotate(6deg);
@@ -217,9 +217,9 @@
     .player-shadow {
       position: absolute;
       left: 50%;
-      bottom: 10px;
-      width: 56px;
-      height: 18px;
+      bottom: 6px;
+      width: 34px;
+      height: 12px;
       transform: translateX(-50%);
       border-radius: 50%;
       background: rgba(15,23,42,0.28);
@@ -660,7 +660,7 @@
 <body>
   <main class="app">
     <section class="panel hero">
-      <div class="version-badge">v0.4.1</div>
+      <div class="version-badge">v0.4.2</div>
       <div>
         <div class="badge">Aslan • monde 3x3</div>
         <h1>Arcade kawai zone par zone</h1>
@@ -680,7 +680,7 @@
         <div class="map-title" id="mapTitle"></div>
         <div id="edgeIndicators"></div>
 
-        <div class="player" id="player" style="left: 50%; top: 72%;">
+        <div class="player" id="player" style="left: 50%; top: 74%; transform: translate(-50%, -50%) scale(0.6) scaleX(var(--player-facing, 1));">
           <div class="player-shadow"></div>
           <div class="player-layer equipment-slot back" data-slot="back"></div>
           <div class="player-cape"></div>
@@ -1075,6 +1075,7 @@
       player.style.left = `${state.position.x}%`;
       player.style.top = `${state.position.y}%`;
       player.style.zIndex = `${Math.round(state.position.y * 10)}`;
+      player.style.transform = `translate(-50%, -50%) scale(0.6) scaleX(${state.facing})`;
       player.style.setProperty('--player-facing', state.facing);
     }
 

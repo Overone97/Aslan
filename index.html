@@ -203,13 +203,14 @@
       height: 102px;
       transform: translate(-50%, -50%) scaleX(var(--player-facing, 1));
       filter: drop-shadow(0 12px 10px rgba(0,0,0,0.28));
-      --walk-arm-left: rotate(10deg);
-      --walk-arm-right: rotate(-10deg);
-      --walk-forearm-left: rotate(6deg);
-      --walk-forearm-right: rotate(-6deg);
-      --walk-leg-left: rotate(-6deg);
-      --walk-leg-right: rotate(6deg);
-      --walk-cape: rotate(-4deg);
+      --walk-arm-left: rotate(4deg);
+      --walk-arm-right: rotate(-4deg);
+      --walk-forearm-left: rotate(3deg);
+      --walk-forearm-right: rotate(-3deg);
+      --walk-leg-left: rotate(-3deg);
+      --walk-leg-right: rotate(3deg);
+      --walk-cape: rotate(-2deg);
+      --walk-body: rotate(0deg);
       --walk-bob: 0px;
       --player-facing: 1;
       transition: left 0.12s linear, top 0.12s linear;
@@ -229,12 +230,18 @@
       inset: 0;
       pointer-events: none;
     }
+    .player-core {
+      position: absolute;
+      inset: 0;
+      transform-origin: 50% 54%;
+      transform: var(--walk-body);
+    }
     .player-cape {
       position: absolute;
-      left: 28px;
-      top: 62px;
-      width: 34px;
-      height: 90px;
+      left: 30px;
+      top: 60px;
+      width: 30px;
+      height: 74px;
       background: linear-gradient(180deg, #4d7c0f, #365314 55%, #1f3b13 100%);
       clip-path: polygon(16% 0, 100% 8%, 82% 100%, 0 86%);
       transform-origin: top center;
@@ -244,10 +251,10 @@
     }
     .player-quiver {
       position: absolute;
-      left: 26px;
-      top: 52px;
-      width: 24px;
-      height: 44px;
+      left: 28px;
+      top: 58px;
+      width: 18px;
+      height: 34px;
       border-radius: 10px;
       background: linear-gradient(180deg, #6b4f2a, #4a2d16);
       transform: rotate(-18deg);
@@ -410,10 +417,10 @@
     }
     .player-neck-wrap {
       position: absolute;
-      left: 32px;
-      top: calc(58px + var(--walk-bob));
-      width: 58px;
-      height: 26px;
+      left: 34px;
+      top: calc(60px + var(--walk-bob));
+      width: 54px;
+      height: 24px;
       background: linear-gradient(180deg, #6b8f2a, #4d7c0f 60%, #365314 100%);
       border-radius: 20px 24px 18px 22px;
       z-index: 6;
@@ -421,20 +428,21 @@
     }
     .player-torso {
       position: absolute;
-      left: 38px;
+      left: 36px;
       top: calc(74px + var(--walk-bob));
-      width: 44px;
-      height: 50px;
-      background: linear-gradient(180deg, #3d6f42, #284d31 58%, #1d3321 100%);
-      clip-path: polygon(14% 0, 86% 0, 100% 26%, 90% 100%, 10% 100%, 0 24%);
-      z-index: 5;
+      width: 50px;
+      height: 54px;
+      background: linear-gradient(180deg, #4d7c0f, #3f6212 55%, #29471f 100%);
+      clip-path: polygon(18% 0, 82% 0, 100% 24%, 88% 100%, 12% 100%, 0 22%);
+      z-index: 7;
+      box-shadow: inset 0 3px 0 rgba(255,255,255,0.12);
     }
     .player-symbol {
       position: absolute;
-      left: 51px;
-      top: calc(88px + var(--walk-bob));
-      width: 18px;
-      height: 18px;
+      left: 52px;
+      top: calc(92px + var(--walk-bob));
+      width: 16px;
+      height: 16px;
       border: 4px solid rgba(255,255,255,0.9);
       border-left-width: 0;
       border-top-width: 0;
@@ -443,9 +451,9 @@
     }
     .player-belt {
       position: absolute;
-      left: 32px;
-      top: calc(112px + var(--walk-bob));
-      width: 58px;
+      left: 34px;
+      top: calc(118px + var(--walk-bob));
+      width: 54px;
       height: 12px;
       border-radius: 999px;
       background: linear-gradient(180deg, #8b5a2b, #5b3a1a);
@@ -454,9 +462,9 @@
     .player-sash {
       position: absolute;
       left: 56px;
-      top: calc(116px + var(--walk-bob));
-      width: 20px;
-      height: 30px;
+      top: calc(120px + var(--walk-bob));
+      width: 18px;
+      height: 24px;
       background: linear-gradient(180deg, #f2c14e, #b7791f);
       clip-path: polygon(40% 0, 100% 0, 70% 100%, 0 100%);
       z-index: 6;
@@ -468,33 +476,33 @@
       inset: 0;
       transform-origin: top center;
     }
-    .player-arm-group.left { z-index: 4; transform: var(--walk-arm-left); transform-origin: 44px calc(86px + var(--walk-bob)); }
-    .player-arm-group.right { z-index: 8; transform: var(--walk-arm-right); transform-origin: 78px calc(86px + var(--walk-bob)); }
+    .player-arm-group.left { z-index: 6; transform: var(--walk-arm-left); transform-origin: 46px calc(88px + var(--walk-bob)); }
+    .player-arm-group.right { z-index: 8; transform: var(--walk-arm-right); transform-origin: 76px calc(88px + var(--walk-bob)); }
     .player-upper-arm {
       position: absolute;
-      width: 12px;
-      height: 34px;
+      width: 11px;
+      height: 26px;
       border-radius: 999px;
       background: linear-gradient(180deg, #d4973c, #b86e1f);
     }
-    .player-upper-arm.left { left: 40px; top: calc(82px + var(--walk-bob)); }
-    .player-upper-arm.right { right: 40px; top: calc(82px + var(--walk-bob)); }
+    .player-upper-arm.left { left: 41px; top: calc(84px + var(--walk-bob)); }
+    .player-upper-arm.right { right: 41px; top: calc(84px + var(--walk-bob)); }
     .player-forearm {
       position: absolute;
-      width: 16px;
-      height: 36px;
+      width: 14px;
+      height: 28px;
       border-radius: 14px;
       background: linear-gradient(180deg, #5f7d2b, #365314);
       transform-origin: top center;
     }
     .player-forearm.left {
-      left: 36px;
-      top: calc(104px + var(--walk-bob));
+      left: 38px;
+      top: calc(100px + var(--walk-bob));
       transform: var(--walk-forearm-left);
     }
     .player-forearm.right {
-      right: 36px;
-      top: calc(104px + var(--walk-bob));
+      right: 38px;
+      top: calc(100px + var(--walk-bob));
       transform: var(--walk-forearm-right);
     }
     .player-hand {
@@ -504,28 +512,28 @@
       border-radius: 50%;
       background: linear-gradient(180deg, #f0bb5f, #c57d29);
     }
-    .player-hand.left { left: 38px; top: calc(136px + var(--walk-bob)); }
-    .player-hand.right { right: 38px; top: calc(136px + var(--walk-bob)); }
-    .player-leg-group.left { z-index: 3; transform: var(--walk-leg-left); transform-origin: 48px calc(122px + var(--walk-bob)); }
-    .player-leg-group.right { z-index: 3; transform: var(--walk-leg-right); transform-origin: 74px calc(122px + var(--walk-bob)); }
+    .player-hand.left { left: 39px; top: calc(122px + var(--walk-bob)); }
+    .player-hand.right { right: 39px; top: calc(122px + var(--walk-bob)); }
+    .player-leg-group.left { z-index: 4; transform: var(--walk-leg-left); transform-origin: 50px calc(126px + var(--walk-bob)); }
+    .player-leg-group.right { z-index: 4; transform: var(--walk-leg-right); transform-origin: 72px calc(126px + var(--walk-bob)); }
     .player-pants {
       position: absolute;
-      width: 24px;
-      height: 46px;
+      width: 18px;
+      height: 34px;
       background: linear-gradient(180deg, #6b8f2a, #4d7c0f 65%, #365314 100%);
       border-radius: 16px 16px 12px 12px;
     }
-    .player-pants.left { left: 42px; top: calc(118px + var(--walk-bob)); }
-    .player-pants.right { right: 42px; top: calc(118px + var(--walk-bob)); }
+    .player-pants.left { left: 44px; top: calc(122px + var(--walk-bob)); }
+    .player-pants.right { right: 44px; top: calc(122px + var(--walk-bob)); }
     .player-boot {
       position: absolute;
-      width: 26px;
-      height: 22px;
+      width: 20px;
+      height: 16px;
       background: linear-gradient(180deg, #6b4f2a, #3f2a17);
       border-radius: 10px 10px 14px 14px;
     }
-    .player-boot.left { left: 40px; top: calc(154px + var(--walk-bob)); }
-    .player-boot.right { right: 40px; top: calc(154px + var(--walk-bob)); }
+    .player-boot.left { left: 42px; top: calc(148px + var(--walk-bob)); }
+    .player-boot.right { right: 42px; top: calc(148px + var(--walk-bob)); }
     .player-weapon-group {
       z-index: 9;
     }
@@ -660,7 +668,7 @@
 <body>
   <main class="app">
     <section class="panel hero">
-      <div class="version-badge">v0.4.2</div>
+      <div class="version-badge">v0.4.3</div>
       <div>
         <div class="badge">Aslan • monde 3x3</div>
         <h1>Arcade kawai zone par zone</h1>
@@ -682,10 +690,11 @@
 
         <div class="player" id="player" style="left: 50%; top: 74%; transform: translate(-50%, -50%) scale(0.6) scaleX(var(--player-facing, 1));">
           <div class="player-shadow"></div>
-          <div class="player-layer equipment-slot back" data-slot="back"></div>
-          <div class="player-cape"></div>
-          <div class="player-quiver"></div>
-          <div class="player-layer">
+          <div class="player-core">
+            <div class="player-layer equipment-slot back" data-slot="back"></div>
+            <div class="player-cape"></div>
+            <div class="player-quiver"></div>
+            <div class="player-layer">
             <div class="player-ear left"></div>
             <div class="player-ear right"></div>
             <div class="player-hair-back"></div>
@@ -732,7 +741,8 @@
             <div class="player-bow"></div>
             <div class="player-layer equipment-slot weapon" data-slot="weapon"></div>
           </div>
-          <div class="player-layer equipment-slot head" data-slot="head"></div>
+            <div class="player-layer equipment-slot head" data-slot="head"></div>
+          </div>
           <div class="player-label">Aslan</div>
         </div>
       </section>
@@ -1085,17 +1095,19 @@
       } else {
         state.walkTime += (0 - state.walkTime) * Math.min(deltaSeconds * 10, 1);
       }
-      const swing = Math.sin(state.walkTime) * 16;
-      const counterSwing = Math.sin(state.walkTime + Math.PI) * 10;
-      const bob = Math.abs(Math.sin(state.walkTime)) * 5;
-      const cape = Math.sin(state.walkTime * 0.8) * 6;
-      player.style.setProperty('--walk-arm-left', `rotate(${10 + swing}deg)`);
-      player.style.setProperty('--walk-arm-right', `rotate(${-10 - swing}deg)`);
-      player.style.setProperty('--walk-forearm-left', `rotate(${6 + counterSwing}deg)`);
-      player.style.setProperty('--walk-forearm-right', `rotate(${-6 - counterSwing}deg)`);
-      player.style.setProperty('--walk-leg-left', `rotate(${-6 - swing}deg)`);
-      player.style.setProperty('--walk-leg-right', `rotate(${6 + swing}deg)`);
-      player.style.setProperty('--walk-cape', `rotate(${-4 + (isMoving ? cape : cape * 0.25)}deg)`);
+      const swing = Math.sin(state.walkTime) * 8;
+      const counterSwing = Math.sin(state.walkTime + Math.PI) * 5;
+      const bob = Math.abs(Math.sin(state.walkTime)) * 2.5;
+      const cape = Math.sin(state.walkTime * 0.8) * 3;
+      const body = Math.sin(state.walkTime) * 1.8;
+      player.style.setProperty('--walk-arm-left', `rotate(${4 + swing}deg)`);
+      player.style.setProperty('--walk-arm-right', `rotate(${-4 - swing}deg)`);
+      player.style.setProperty('--walk-forearm-left', `rotate(${3 + counterSwing}deg)`);
+      player.style.setProperty('--walk-forearm-right', `rotate(${-3 - counterSwing}deg)`);
+      player.style.setProperty('--walk-leg-left', `rotate(${-3 - swing}deg)`);
+      player.style.setProperty('--walk-leg-right', `rotate(${3 + swing}deg)`);
+      player.style.setProperty('--walk-cape', `rotate(${-2 + (isMoving ? cape : cape * 0.25)}deg)`);
+      player.style.setProperty('--walk-body', `rotate(${isMoving ? body : body * 0.2}deg)`);
       player.style.setProperty('--walk-bob', `${isMoving ? bob : bob * 0.25}px`);
     }
 

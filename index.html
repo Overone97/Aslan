@@ -96,7 +96,14 @@
       pointer-events: none;
     }
     .scene.reference-map::before {
-      background: linear-gradient(180deg, rgba(15,23,42,0.08), rgba(15,23,42,0.18));
+      background: linear-gradient(180deg, rgba(15,23,42,0.02), rgba(15,23,42,0.08));
+    }
+    .scene.reference-map .mist,
+    .scene.reference-map .hill,
+    .scene.reference-map .path,
+    .scene.reference-map #specialLayer,
+    .scene.reference-map #decorLayer {
+      display: none !important;
     }
     .mist {
       position: absolute;
@@ -367,7 +374,7 @@
 <body>
   <main class="app">
     <section class="panel hero">
-      <div class="version-badge">v0.3.2</div>
+      <div class="version-badge">v0.3.3</div>
       <div>
         <div class="badge">Aslan • monde 3x3</div>
         <h1>Arcade kawai zone par zone</h1>
@@ -750,7 +757,7 @@
       const theme = themeStyles[map.theme];
       scene.classList.toggle('reference-map', Boolean(map.backgroundImage));
       scene.style.background = map.backgroundImage
-        ? `${theme.scene}, ${map.backgroundImage} center/cover no-repeat`
+        ? `${map.backgroundImage} center/cover no-repeat`
         : theme.scene;
       hillBack.style.background = theme.back;
       hillFront.style.background = theme.front;

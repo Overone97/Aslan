@@ -234,7 +234,7 @@
       position: absolute;
       inset: 0;
       transform-origin: 50% 54%;
-      transform: var(--walk-body);
+      transform: scaleX(-1) var(--walk-body);
     }
     .player-cape {
       position: absolute;
@@ -428,14 +428,14 @@
     }
     .player-torso {
       position: absolute;
-      left: 36px;
-      top: calc(74px + var(--walk-bob));
-      width: 50px;
-      height: 54px;
-      background: linear-gradient(180deg, #4d7c0f, #3f6212 55%, #29471f 100%);
-      clip-path: polygon(18% 0, 82% 0, 100% 24%, 88% 100%, 12% 100%, 0 22%);
-      z-index: 7;
-      box-shadow: inset 0 3px 0 rgba(255,255,255,0.12);
+      left: 33px;
+      top: calc(72px + var(--walk-bob));
+      width: 56px;
+      height: 60px;
+      background: linear-gradient(180deg, #5f8f2f, #4d7c0f 48%, #2f4f1e 100%);
+      clip-path: polygon(16% 0, 84% 0, 100% 20%, 90% 100%, 10% 100%, 0 20%);
+      z-index: 9;
+      box-shadow: inset 0 3px 0 rgba(255,255,255,0.14), inset 0 -4px 0 rgba(0,0,0,0.08);
     }
     .player-symbol {
       position: absolute;
@@ -452,9 +452,9 @@
     .player-belt {
       position: absolute;
       left: 34px;
-      top: calc(118px + var(--walk-bob));
+      top: calc(122px + var(--walk-bob));
       width: 54px;
-      height: 12px;
+      height: 10px;
       border-radius: 999px;
       background: linear-gradient(180deg, #8b5a2b, #5b3a1a);
       z-index: 7;
@@ -668,7 +668,7 @@
 <body>
   <main class="app">
     <section class="panel hero">
-      <div class="version-badge">v0.4.3</div>
+      <div class="version-badge">v0.4.4</div>
       <div>
         <div class="badge">Aslan • monde 3x3</div>
         <h1>Arcade kawai zone par zone</h1>
@@ -1100,12 +1100,12 @@
       const bob = Math.abs(Math.sin(state.walkTime)) * 2.5;
       const cape = Math.sin(state.walkTime * 0.8) * 3;
       const body = Math.sin(state.walkTime) * 1.8;
-      player.style.setProperty('--walk-arm-left', `rotate(${4 + swing}deg)`);
-      player.style.setProperty('--walk-arm-right', `rotate(${-4 - swing}deg)`);
-      player.style.setProperty('--walk-forearm-left', `rotate(${3 + counterSwing}deg)`);
-      player.style.setProperty('--walk-forearm-right', `rotate(${-3 - counterSwing}deg)`);
-      player.style.setProperty('--walk-leg-left', `rotate(${-3 - swing}deg)`);
-      player.style.setProperty('--walk-leg-right', `rotate(${3 + swing}deg)`);
+      player.style.setProperty('--walk-arm-left', `rotate(${-4 - swing}deg)`);
+      player.style.setProperty('--walk-arm-right', `rotate(${4 + swing}deg)`);
+      player.style.setProperty('--walk-forearm-left', `rotate(${-3 - counterSwing}deg)`);
+      player.style.setProperty('--walk-forearm-right', `rotate(${3 + counterSwing}deg)`);
+      player.style.setProperty('--walk-leg-left', `rotate(${3 + swing}deg)`);
+      player.style.setProperty('--walk-leg-right', `rotate(${-3 - swing}deg)`);
       player.style.setProperty('--walk-cape', `rotate(${-2 + (isMoving ? cape : cape * 0.25)}deg)`);
       player.style.setProperty('--walk-body', `rotate(${isMoving ? body : body * 0.2}deg)`);
       player.style.setProperty('--walk-bob', `${isMoving ? bob : bob * 0.25}px`);

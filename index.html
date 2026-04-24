@@ -696,7 +696,7 @@
 <body>
   <main class="app">
     <section class="panel hero">
-      <div class="version-badge">v0.5.3</div>
+      <div class="version-badge">v0.5.4</div>
       <div>
         <div class="badge">Aslan • monde 3x3</div>
         <h1>Arcade kawai zone par zone</h1>
@@ -1074,32 +1074,32 @@
       sceau_passage: { label: 'Sceau du passage', type: 'quest' },
     };
 
-    const RESOURCE_NODES = {
+    const RESOURCE_SPAWN_TABLE = {
       '0,0': [
-        { key: 'herbe_douce', left: 28, top: 62 },
-        { key: 'bois_tendre', left: 66, top: 58 },
+        { key: 'herbe_douce', left: 28, top: 62, chance: 0.85, respawnMs: 12000 },
+        { key: 'bois_tendre', left: 66, top: 58, chance: 0.65, respawnMs: 18000 },
       ],
       '1,0': [
-        { key: 'fleur_claire', left: 52, top: 60 },
+        { key: 'fleur_claire', left: 52, top: 60, chance: 0.7, respawnMs: 14000 },
       ],
       '2,0': [
-        { key: 'cuivre_brut', left: 62, top: 60 },
+        { key: 'cuivre_brut', left: 62, top: 60, chance: 0.55, respawnMs: 22000 },
       ],
       '0,1': [
-        { key: 'feuille_medicinale', left: 34, top: 60 },
+        { key: 'feuille_medicinale', left: 34, top: 60, chance: 0.8, respawnMs: 15000 },
       ],
       '1,1': [],
       '2,1': [
-        { key: 'bois_tendre', left: 68, top: 58 },
+        { key: 'bois_tendre', left: 68, top: 58, chance: 0.68, respawnMs: 18000 },
       ],
       '0,2': [
-        { key: 'herbe_douce', left: 30, top: 63 },
+        { key: 'herbe_douce', left: 30, top: 63, chance: 0.82, respawnMs: 12000 },
       ],
       '1,2': [
-        { key: 'pierre_friable', left: 54, top: 63 },
+        { key: 'pierre_friable', left: 54, top: 63, chance: 0.72, respawnMs: 20000 },
       ],
       '2,2': [
-        { key: 'eclat_mineral', left: 70, top: 64 },
+        { key: 'eclat_mineral', left: 70, top: 64, chance: 0.5, respawnMs: 24000 },
       ],
     };
 
@@ -1154,6 +1154,7 @@
         jobHarvests: {},
         combatWins: 0,
       },
+      resourceStates: {},
     };
 
     const WORLD_BOUNDS = {
@@ -1191,10 +1192,38 @@
       return ASSET_PATHS.resources[resourceKey] || ASSET_PATHS.nodes[resource.job];
     }
 
+    function getNodeId(mapKey, index) {
+      return `${mapKey}:${index}`;
+    }
+
+    function ensureResourceState(mapKey) {
+      const now = Date.now();
+      (RESOURCE_SPAWN_TABLE[mapKey] || []).forEach((node, index) => {
+        const id = getNodeId(mapKey, index);
+        if (!state.resourceStates[id]) {
+          state.resourceStates[id] = {
+            visible: Math.random() <= node.chance,
+            respawnAt: 0,
+          };
+        }
+        if (!state.resourceStates[id].visible && state.resourceStates[id].respawnAt && now >= state.resourceStates[id].respawnAt) {
+          state.resourceStates[id].visible = Math.random() <= node.chance;
+          state.resourceStates[id].respawnAt = state.resourceStates[id].visible ? 0 : now + node.respawnMs;
+        }
+      });
+    }
+
+    function getVisibleResourceNodes(mapKey) {
+      ensureResourceState(mapKey);
+      return (RESOURCE_SPAWN_TABLE[mapKey] || [])
+        .map((node, index) => ({ ...node, id: getNodeId(mapKey, index) }))
+        .filter(node => state.resourceStates[node.id]?.visible);
+    }
+
     function renderDecor(map) {
       decorLayer.innerHTML = '';
 
-      (RESOURCE_NODES[state.mapKey] || []).forEach(node => {
+      getVisibleResourceNodes(state.mapKey).forEach(node => {
         const item = document.createElement('img');
         item.className = 'world-node';
         item.src = resourceNodeAsset(node.key);
@@ -1346,11 +1375,11 @@
     }
 
     function harvestResource() {
-      const nodes = RESOURCE_NODES[state.mapKey] || [];
+      const nodes = getVisibleResourceNodes(state.mapKey);
       const node = nodes[0];
       const resourceKey = node?.key;
       if (!resourceKey) {
-        statusLine.textContent = `Carte actuelle : ${maps[state.mapKey].name} • Rien à récolter ici pour le moment.`;
+        statusLine.textContent = `Carte actuelle : ${maps[state.mapKey].name} • Aucune ressource active ici pour le moment.`;
         return;
       }
       const resource = RESOURCES[resourceKey];
@@ -1362,9 +1391,12 @@
       addItem(resourceKey, 1);
       gainJobXp(resource.job, resource.xp);
       state.progress.jobHarvests[resourceKey] = resource.job;
+      state.resourceStates[node.id].visible = false;
+      state.resourceStates[node.id].respawnAt = Date.now() + node.respawnMs;
       updateQuestProgress();
-      statusLine.textContent = `Carte actuelle : ${maps[state.mapKey].name} • Récolte: ${resource.label}.`;
+      statusLine.textContent = `Carte actuelle : ${maps[state.mapKey].name} • Récolte: ${resource.label}. Respawn dans ${Math.round(node.respawnMs / 1000)}s.`;
       renderPanels();
+      renderDecor(maps[state.mapKey]);
     }
 
     function fightEnemy() {
@@ -1472,6 +1504,7 @@
       path.style.background = theme.path;
       mapTitle.textContent = map.name;
       statusLine.textContent = `Carte actuelle : ${map.name}`;
+      ensureResourceState(state.mapKey);
       renderSpecialLayer(map);
       renderDecor(map);
       renderEdges(map);
@@ -1575,8 +1608,10 @@
     function tick(now) {
       const deltaSeconds = Math.min((now - state.lastFrame) / 1000, 0.033);
       state.lastFrame = now;
+      ensureResourceState(state.mapKey);
       updatePlayer(deltaSeconds);
       if (!state.pressedKeys.size) renderWalkAnimation(false, deltaSeconds);
+      renderDecor(maps[state.mapKey]);
       requestAnimationFrame(tick);
     }
 

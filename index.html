@@ -376,7 +376,7 @@
 <body>
   <main class="app">
     <section class="panel hero">
-      <div class="version-badge">v0.3.5</div>
+      <div class="version-badge">v0.3.6</div>
       <div>
         <div class="badge">Aslan • monde 3x3</div>
         <h1>Arcade kawai zone par zone</h1>
@@ -452,7 +452,7 @@
       '2,0': {
         name: 'Rives azur',
         theme: 'coast',
-        backgroundImage: 'url("./assets/maps/rives-azur-village.jpg")',
+        backgroundImage: 'url("./assets/maps/place-centrale.jpg")',
         exits: { left: '1,0', down: '2,1' },
         decor: []
       },
@@ -466,7 +466,7 @@
       '1,1': {
         name: 'Place centrale',
         theme: 'plaza',
-        backgroundImage: 'url("./assets/maps/place-centrale.jpg")',
+        backgroundImage: 'url("./assets/maps/rives-azur-chemin.jpg")',
         exits: { up: '1,0', right: '2,1', down: '1,2', left: '0,1' },
         decor: []
       },
@@ -629,10 +629,10 @@
     };
 
     const TRANSITION_SPAWN = {
-      left: { x: 92, y: null },
-      right: { x: 8, y: null },
-      up: { x: null, y: 86 },
-      down: { x: null, y: 14 },
+      left: { x: 90, y: null },
+      right: { x: 10, y: null },
+      up: { x: null, y: 84 },
+      down: { x: null, y: 16 },
     };
 
     function renderMiniMap() {
@@ -773,13 +773,14 @@
       if (!nextKey) return;
       const spawn = TRANSITION_SPAWN[direction];
       state.mapKey = nextKey;
+      state.pressedKeys.clear();
       if (spawn.x !== null) state.position.x = spawn.x;
       if (spawn.y !== null) state.position.y = spawn.y;
-      state.position.x = clamp(state.position.x, WORLD_BOUNDS.left, WORLD_BOUNDS.right);
-      state.position.y = clamp(state.position.y, WORLD_BOUNDS.top, WORLD_BOUNDS.bottom);
+      state.position.x = clamp(state.position.x, WORLD_BOUNDS.left + 2, WORLD_BOUNDS.right - 2);
+      state.position.y = clamp(state.position.y, WORLD_BOUNDS.top + 2, WORLD_BOUNDS.bottom - 2);
       renderMap();
       renderPlayer();
-      renderWalkAnimation(true, 0.016);
+      renderWalkAnimation(false, 0.016);
     }
 
     function updatePlayer(deltaSeconds) {

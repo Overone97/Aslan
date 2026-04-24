@@ -668,13 +668,13 @@
 <body>
   <main class="app">
     <section class="panel hero">
-      <div class="version-badge">v0.4.4</div>
+      <div class="version-badge">v0.5.0</div>
       <div>
         <div class="badge">Aslan • monde 3x3</div>
         <h1>Arcade kawai zone par zone</h1>
         <p>9 cartes carrées en grille 3x3, avec passage automatique d’une zone à l’autre.</p>
       </div>
-      <div class="hint">Déplace le personnage avec les flèches du clavier ou ZQSD/WASD. Passe par les bords pour changer de carte.</div>
+      <div class="hint">Déplace le personnage avec les flèches du clavier ou ZQSD/WASD. E récolte, F combat, C craft, et parle au Chef depuis la Place centrale.</div>
     </section>
 
     <section class="layout">
@@ -765,6 +765,27 @@
           <p class="hint">Chaque carte a son humeur. Tu sors d’un bord, tu réapparais sur le bord opposé de la carte voisine. Simple, stable, propre.</p>
           <div class="mini-map" id="miniMap"></div>
           <div class="status-line" id="statusLine"></div>
+        </section>
+
+        <section class="panel">
+          <h3>Chef du village</h3>
+          <div class="hint" id="chiefPanel">Le Chef du village attend sur la Place centrale pour lancer le chapitre 1.</div>
+          <button id="talkChiefBtn">Parler au Chef</button>
+        </section>
+
+        <section class="panel">
+          <h3>Métiers</h3>
+          <div class="hint" id="jobsPanel"></div>
+        </section>
+
+        <section class="panel">
+          <h3>Inventaire</h3>
+          <div class="hint" id="inventoryPanel"></div>
+        </section>
+
+        <section class="panel">
+          <h3>Quêtes</h3>
+          <div class="hint" id="questPanel"></div>
         </section>
       </aside>
     </section>
@@ -954,6 +975,74 @@
     const edgeIndicators = document.getElementById('edgeIndicators');
     const miniMap = document.getElementById('miniMap');
     const statusLine = document.getElementById('statusLine');
+    const jobsPanel = document.getElementById('jobsPanel');
+    const inventoryPanel = document.getElementById('inventoryPanel');
+    const questPanel = document.getElementById('questPanel');
+    const chiefPanel = document.getElementById('chiefPanel');
+    const talkChiefBtn = document.getElementById('talkChiefBtn');
+
+    const JOBS = {
+      botanique: { label: 'Botanique', xpTable: [0, 20, 55, 110] },
+      bucheron: { label: 'Bûcheron', xpTable: [0, 20, 55, 110] },
+      mineur: { label: 'Mineur', xpTable: [0, 20, 55, 110] },
+    };
+
+    const RESOURCES = {
+      herbe_douce: { label: 'Herbe douce', job: 'botanique', xp: 8, level: 1 },
+      fleur_claire: { label: 'Fleur claire', job: 'botanique', xp: 8, level: 1 },
+      feuille_medicinale: { label: 'Feuille médicinale', job: 'botanique', xp: 10, level: 1 },
+      bois_tendre: { label: 'Bois tendre', job: 'bucheron', xp: 8, level: 1 },
+      jeune_branche: { label: 'Jeune branche', job: 'bucheron', xp: 8, level: 1 },
+      ecorce_legere: { label: 'Écorce légère', job: 'bucheron', xp: 10, level: 1 },
+      pierre_friable: { label: 'Pierre friable', job: 'mineur', xp: 8, level: 1 },
+      cuivre_brut: { label: 'Cuivre brut', job: 'mineur', xp: 10, level: 1 },
+      eclat_mineral: { label: 'Éclat minéral', job: 'mineur', xp: 10, level: 1 },
+      griffe: { label: 'Griffe', type: 'loot' },
+      dent: { label: 'Dent', type: 'loot' },
+      essence: { label: 'Essence', type: 'loot' },
+      fibre_vegetale: { label: 'Fibre végétale', type: 'craft' },
+      planche_simple: { label: 'Planche simple', type: 'craft' },
+      poudre_minerale: { label: 'Poudre minérale', type: 'craft' },
+      sceau_passage: { label: 'Sceau du passage', type: 'quest' },
+    };
+
+    const RESOURCE_NODES = {
+      '0,0': ['herbe_douce', 'bois_tendre'],
+      '1,0': ['fleur_claire'],
+      '2,0': ['cuivre_brut'],
+      '0,1': ['feuille_medicinale'],
+      '1,1': [],
+      '2,1': ['bois_tendre'],
+      '0,2': ['herbe_douce'],
+      '1,2': ['pierre_friable'],
+      '2,2': ['eclat_mineral'],
+    };
+
+    const ENEMIES = {
+      pousse_sombre: { label: 'Pousse sombre', hp: 12, loot: ['griffe'] },
+      crabe_lisse: { label: 'Crabe lisse', hp: 16, loot: ['dent'] },
+      esprit_racine: { label: 'Esprit racine', hp: 22, loot: ['essence'] },
+    };
+
+    const MAP_ENEMIES = {
+      '0,0': ['pousse_sombre'],
+      '2,0': ['crabe_lisse'],
+      '2,1': ['esprit_racine'],
+    };
+
+    const RECIPES = {
+      fibre_vegetale: { label: 'Fibre végétale', ingredients: { herbe_douce: 2, feuille_medicinale: 1 }, output: 'fibre_vegetale' },
+      planche_simple: { label: 'Planche simple', ingredients: { bois_tendre: 2, jeune_branche: 1 }, output: 'planche_simple' },
+      poudre_minerale: { label: 'Poudre minérale', ingredients: { pierre_friable: 2, cuivre_brut: 1 }, output: 'poudre_minerale' },
+      sceau_passage: { label: 'Sceau du passage', ingredients: { fibre_vegetale: 1, planche_simple: 1, poudre_minerale: 1, essence: 1 }, output: 'sceau_passage' },
+    };
+
+    const QUESTS = {
+      metier: { label: 'Les mains dans la terre', goal: 'Récolte 1 ressource de chaque métier.', type: 'jobs' },
+      combat: { label: 'Le village n’est pas sans danger', goal: 'Vaincs 2 ennemis.', type: 'combat' },
+      decouverte: { label: 'Connais les environs', goal: 'Découvre 4 cartes.', type: 'explore' },
+      craft: { label: 'Le sceau du passage', goal: 'Fabrique le Sceau du passage et remets-le au Chef.', type: 'craft' },
+    };
 
     const state = {
       mapKey: '1,1',
@@ -963,6 +1052,23 @@
       lastFrame: performance.now(),
       walkTime: 0,
       facing: 1,
+      inventory: {},
+      discoveredMaps: new Set(['1,1']),
+      jobs: {
+        botanique: { level: 1, xp: 0 },
+        bucheron: { level: 1, xp: 0 },
+        mineur: { level: 1, xp: 0 },
+      },
+      questState: {
+        metier: 'available',
+        combat: 'locked',
+        decouverte: 'locked',
+        craft: 'locked',
+      },
+      progress: {
+        jobHarvests: {},
+        combatWins: 0,
+      },
     };
 
     const WORLD_BOUNDS = {
@@ -1063,9 +1169,140 @@
       }
     }
 
+    function addItem(itemKey, qty = 1) {
+      state.inventory[itemKey] = (state.inventory[itemKey] || 0) + qty;
+    }
+
+    function hasItems(ingredients) {
+      return Object.entries(ingredients).every(([key, qty]) => (state.inventory[key] || 0) >= qty);
+    }
+
+    function consumeItems(ingredients) {
+      Object.entries(ingredients).forEach(([key, qty]) => {
+        state.inventory[key] = Math.max(0, (state.inventory[key] || 0) - qty);
+      });
+    }
+
+    function gainJobXp(jobKey, amount) {
+      const job = state.jobs[jobKey];
+      if (!job) return;
+      job.xp += amount;
+      const xpTable = JOBS[jobKey].xpTable;
+      while (job.level < xpTable.length && job.xp >= xpTable[job.level]) {
+        job.level += 1;
+      }
+    }
+
+    function updateQuestProgress() {
+      const harvestedJobs = new Set(Object.values(state.progress.jobHarvests));
+      if (state.questState.metier === 'accepted' && harvestedJobs.size >= 3) state.questState.metier = 'ready';
+      if (state.questState.combat === 'accepted' && state.progress.combatWins >= 2) state.questState.combat = 'ready';
+      if (state.questState.decouverte === 'accepted' && state.discoveredMaps.size >= 4) state.questState.decouverte = 'ready';
+      if (state.questState.craft === 'accepted' && (state.inventory.sceau_passage || 0) >= 1) state.questState.craft = 'ready';
+    }
+
+    function talkToChief() {
+      const currentMap = state.mapKey;
+      if (currentMap !== '1,1') {
+        chiefPanel.textContent = 'Le Chef du village t’attend sur la Place centrale.';
+        return;
+      }
+      if (state.questState.metier === 'available') {
+        state.questState.metier = 'accepted';
+        chiefPanel.textContent = 'Le Chef t’enseigne les métiers. Récolte une ressource de chaque métier.';
+      } else if (state.questState.metier === 'ready') {
+        state.questState.metier = 'done';
+        state.questState.combat = 'accepted';
+        chiefPanel.textContent = 'Bien. Maintenant, prouve que tu sais te défendre. Va vaincre 2 ennemis.';
+      } else if (state.questState.combat === 'ready') {
+        state.questState.combat = 'done';
+        state.questState.decouverte = 'accepted';
+        chiefPanel.textContent = 'Parfait. Explore maintenant 4 cartes du monde.';
+      } else if (state.questState.decouverte === 'ready') {
+        state.questState.decouverte = 'done';
+        state.questState.craft = 'accepted';
+        chiefPanel.textContent = 'Tu es prêt. Fabrique maintenant le Sceau du passage.';
+      } else if (state.questState.craft === 'ready') {
+        state.questState.craft = 'done';
+        state.inventory.sceau_passage = Math.max(0, (state.inventory.sceau_passage || 0) - 1);
+        chiefPanel.textContent = 'Excellent. Le chapitre 1 est terminé. Le chapitre 2 pourra commencer.';
+      } else {
+        chiefPanel.textContent = 'Continue ton travail. Le village compte sur toi.';
+      }
+      updateQuestProgress();
+      renderPanels();
+    }
+
+    function harvestResource() {
+      const nodes = RESOURCE_NODES[state.mapKey] || [];
+      const resourceKey = nodes[0];
+      if (!resourceKey) {
+        statusLine.textContent = `Carte actuelle : ${maps[state.mapKey].name} • Rien à récolter ici pour le moment.`;
+        return;
+      }
+      const resource = RESOURCES[resourceKey];
+      const job = state.jobs[resource.job];
+      if (job.level < resource.level) {
+        statusLine.textContent = `Carte actuelle : ${maps[state.mapKey].name} • Niveau ${resource.level} requis en ${JOBS[resource.job].label}.`;
+        return;
+      }
+      addItem(resourceKey, 1);
+      gainJobXp(resource.job, resource.xp);
+      state.progress.jobHarvests[resourceKey] = resource.job;
+      updateQuestProgress();
+      statusLine.textContent = `Carte actuelle : ${maps[state.mapKey].name} • Récolte: ${resource.label}.`;
+      renderPanels();
+    }
+
+    function fightEnemy() {
+      const mapEnemies = MAP_ENEMIES[state.mapKey] || [];
+      const enemyKey = mapEnemies[0];
+      if (!enemyKey) {
+        statusLine.textContent = `Carte actuelle : ${maps[state.mapKey].name} • Aucun ennemi ici.`;
+        return;
+      }
+      const enemy = ENEMIES[enemyKey];
+      state.progress.combatWins += 1;
+      addItem(enemy.loot[0], 1);
+      updateQuestProgress();
+      statusLine.textContent = `Carte actuelle : ${maps[state.mapKey].name} • ${enemy.label} vaincu.`;
+      renderPanels();
+    }
+
+    function craftItem(recipeKey) {
+      const recipe = RECIPES[recipeKey];
+      if (!recipe) return;
+      if (!hasItems(recipe.ingredients)) {
+        statusLine.textContent = `Carte actuelle : ${maps[state.mapKey].name} • Ressources insuffisantes pour ${recipe.label}.`;
+        return;
+      }
+      consumeItems(recipe.ingredients);
+      addItem(recipe.output, 1);
+      updateQuestProgress();
+      statusLine.textContent = `Carte actuelle : ${maps[state.mapKey].name} • Craft: ${recipe.label}.`;
+      renderPanels();
+    }
+
+    function renderPanels() {
+      jobsPanel.innerHTML = Object.entries(state.jobs)
+        .map(([key, job]) => `${JOBS[key].label} • niv ${job.level} • ${job.xp} XP`)
+        .join('<br>');
+
+      inventoryPanel.innerHTML = Object.entries(state.inventory)
+        .filter(([, qty]) => qty > 0)
+        .map(([key, qty]) => `${RESOURCES[key]?.label || key} x${qty}`)
+        .join('<br>') || 'Inventaire vide';
+
+      questPanel.innerHTML = Object.entries(QUESTS)
+        .map(([key, quest]) => `${quest.label} • ${state.questState[key]}`)
+        .join('<br>');
+    }
+
     function renderMap() {
       const map = maps[state.mapKey];
       const theme = themeStyles[map.theme];
+      state.discoveredMaps.add(state.mapKey);
+      updateQuestProgress();
       scene.classList.toggle('reference-map', Boolean(map.backgroundImage));
       scene.style.background = map.backgroundImage
         ? `${map.backgroundImage} center/cover no-repeat`
@@ -1079,6 +1316,7 @@
       renderDecor(map);
       renderEdges(map);
       renderMiniMap();
+      renderPanels();
     }
 
     function renderPlayer() {
@@ -1184,6 +1422,24 @@
 
     window.addEventListener('keydown', event => {
       const key = event.key.toLowerCase();
+      if (key === 'e') {
+        event.preventDefault();
+        harvestResource();
+        return;
+      }
+      if (key === 'f') {
+        event.preventDefault();
+        fightEnemy();
+        return;
+      }
+      if (key === 'c') {
+        event.preventDefault();
+        if (state.inventory.herbe_douce && state.inventory.feuille_medicinale) craftItem('fibre_vegetale');
+        else if (state.inventory.bois_tendre && state.inventory.jeune_branche) craftItem('planche_simple');
+        else if (state.inventory.pierre_friable && state.inventory.cuivre_brut) craftItem('poudre_minerale');
+        else craftItem('sceau_passage');
+        return;
+      }
       if (isMoveKey(key)) {
         event.preventDefault();
         state.pressedKeys.add(key);
@@ -1195,6 +1451,7 @@
     });
 
     window.addEventListener('blur', () => state.pressedKeys.clear());
+    talkChiefBtn.addEventListener('click', talkToChief);
 
     renderMap();
     renderPlayer();

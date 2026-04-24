@@ -197,6 +197,21 @@
       font-weight: 700;
       backdrop-filter: blur(6px);
     }
+    .world-node {
+      position: absolute;
+      width: 84px;
+      height: 84px;
+      transform: translate(-50%, -50%);
+      object-fit: contain;
+      filter: drop-shadow(0 12px 18px rgba(0,0,0,0.24));
+      pointer-events: none;
+      user-select: none;
+    }
+    .world-node.enemy {
+      width: 92px;
+      height: 92px;
+      filter: drop-shadow(0 14px 20px rgba(0,0,0,0.3));
+    }
     .player {
       position: absolute;
       width: 74px;
@@ -668,13 +683,13 @@
 <body>
   <main class="app">
     <section class="panel hero">
-      <div class="version-badge">v0.5.0</div>
+      <div class="version-badge">v0.5.2</div>
       <div>
         <div class="badge">Aslan • monde 3x3</div>
         <h1>Arcade kawai zone par zone</h1>
         <p>9 cartes carrées en grille 3x3, avec passage automatique d’une zone à l’autre.</p>
       </div>
-      <div class="hint">Déplace le personnage avec les flèches du clavier ou ZQSD/WASD. E récolte, F combat, C craft, et parle au Chef depuis la Place centrale.</div>
+      <div class="hint">Déplace le personnage avec les flèches du clavier ou ZQSD/WASD. E récolte, F combat, C craft, et parle au Chef depuis la Place centrale. Les nodes et ennemis sont maintenant visibles sur la map.</div>
     </section>
 
     <section class="layout">
@@ -769,7 +784,10 @@
 
         <section class="panel">
           <h3>Chef du village</h3>
-          <div class="hint" id="chiefPanel">Le Chef du village attend sur la Place centrale pour lancer le chapitre 1.</div>
+          <div class="chief-card">
+            <img src="./assets/chapter1/pnj/chef-village-portrait.jpg" alt="Chef du village" />
+            <div class="hint" id="chiefPanel">Le Chef du village attend sur la Place centrale pour lancer le chapitre 1.</div>
+          </div>
           <button id="talkChiefBtn">Parler au Chef</button>
         </section>
 
@@ -786,6 +804,11 @@
         <section class="panel">
           <h3>Quêtes</h3>
           <div class="hint" id="questPanel"></div>
+        </section>
+
+        <section class="panel">
+          <h3>Craft</h3>
+          <div class="hint" id="craftPanel"></div>
         </section>
       </aside>
     </section>
@@ -978,8 +1001,40 @@
     const jobsPanel = document.getElementById('jobsPanel');
     const inventoryPanel = document.getElementById('inventoryPanel');
     const questPanel = document.getElementById('questPanel');
+    const craftPanel = document.getElementById('craftPanel');
     const chiefPanel = document.getElementById('chiefPanel');
     const talkChiefBtn = document.getElementById('talkChiefBtn');
+
+    const ASSET_PATHS = {
+      jobs: {
+        botanique: './assets/chapter1/metiers/botanique.jpg',
+        bucheron: './assets/chapter1/metiers/bucheron.jpg',
+        mineur: './assets/chapter1/metiers/mineur.jpg',
+      },
+      resources: {
+        herbe_douce: './assets/chapter1/resources/herbe-douce.jpg',
+        fleur_claire: './assets/chapter1/resources/fleur-claire.jpg',
+        feuille_medicinale: './assets/chapter1/resources/feuille-medicinale.jpg',
+        bois_tendre: './assets/chapter1/resources/bois-tendre.jpg',
+        jeune_branche: './assets/chapter1/resources/jeune-branche.jpg',
+      },
+      nodes: {
+        botanique: './assets/chapter1/metiers/botanique.jpg',
+        bucheron: './assets/chapter1/metiers/bucheron.jpg',
+        mineur: './assets/chapter1/metiers/mineur.jpg',
+      },
+      enemies: {
+        pousse_sombre: './assets/chapter1/resources/feuille-medicinale.jpg',
+        crabe_lisse: './assets/chapter1/metiers/mineur.jpg',
+        esprit_racine: './assets/chapter1/pnj/chef-village-sprite.jpg',
+      },
+      craft: {
+        fibre_vegetale: './assets/chapter1/metiers/botanique.jpg',
+        planche_simple: './assets/chapter1/metiers/bucheron.jpg',
+        poudre_minerale: './assets/chapter1/metiers/mineur.jpg',
+        sceau_passage: './assets/chapter1/pnj/chef-village-portrait.jpg',
+      },
+    };
 
     const JOBS = {
       botanique: { label: 'Botanique', xpTable: [0, 20, 55, 110] },
@@ -1007,15 +1062,32 @@
     };
 
     const RESOURCE_NODES = {
-      '0,0': ['herbe_douce', 'bois_tendre'],
-      '1,0': ['fleur_claire'],
-      '2,0': ['cuivre_brut'],
-      '0,1': ['feuille_medicinale'],
+      '0,0': [
+        { key: 'herbe_douce', left: 28, top: 62 },
+        { key: 'bois_tendre', left: 66, top: 58 },
+      ],
+      '1,0': [
+        { key: 'fleur_claire', left: 52, top: 60 },
+      ],
+      '2,0': [
+        { key: 'cuivre_brut', left: 62, top: 60 },
+      ],
+      '0,1': [
+        { key: 'feuille_medicinale', left: 34, top: 60 },
+      ],
       '1,1': [],
-      '2,1': ['bois_tendre'],
-      '0,2': ['herbe_douce'],
-      '1,2': ['pierre_friable'],
-      '2,2': ['eclat_mineral'],
+      '2,1': [
+        { key: 'bois_tendre', left: 68, top: 58 },
+      ],
+      '0,2': [
+        { key: 'herbe_douce', left: 30, top: 63 },
+      ],
+      '1,2': [
+        { key: 'pierre_friable', left: 54, top: 63 },
+      ],
+      '2,2': [
+        { key: 'eclat_mineral', left: 70, top: 64 },
+      ],
     };
 
     const ENEMIES = {
@@ -1025,9 +1097,9 @@
     };
 
     const MAP_ENEMIES = {
-      '0,0': ['pousse_sombre'],
-      '2,0': ['crabe_lisse'],
-      '2,1': ['esprit_racine'],
+      '0,0': [{ key: 'pousse_sombre', left: 62, top: 68 }],
+      '2,0': [{ key: 'crabe_lisse', left: 58, top: 69 }],
+      '2,1': [{ key: 'esprit_racine', left: 62, top: 66 }],
     };
 
     const RECIPES = {
@@ -1100,8 +1172,35 @@
       }
     }
 
+    function resourceNodeAsset(resourceKey) {
+      const resource = RESOURCES[resourceKey];
+      if (!resource?.job) return ASSET_PATHS.resources[resourceKey] || ASSET_PATHS.jobs.botanique;
+      return ASSET_PATHS.resources[resourceKey] || ASSET_PATHS.nodes[resource.job];
+    }
+
     function renderDecor(map) {
       decorLayer.innerHTML = '';
+
+      (RESOURCE_NODES[state.mapKey] || []).forEach(node => {
+        const item = document.createElement('img');
+        item.className = 'world-node';
+        item.src = resourceNodeAsset(node.key);
+        item.alt = RESOURCES[node.key]?.label || node.key;
+        item.style.left = `${node.left}%`;
+        item.style.top = `${node.top}%`;
+        decorLayer.appendChild(item);
+      });
+
+      (MAP_ENEMIES[state.mapKey] || []).forEach(enemyNode => {
+        const item = document.createElement('img');
+        item.className = 'world-node enemy';
+        item.src = ASSET_PATHS.enemies[enemyNode.key] || ASSET_PATHS.jobs.botanique;
+        item.alt = ENEMIES[enemyNode.key]?.label || enemyNode.key;
+        item.style.left = `${enemyNode.left}%`;
+        item.style.top = `${enemyNode.top}%`;
+        decorLayer.appendChild(item);
+      });
+
       map.decor.forEach(itemConfig => {
         const item = document.createElement('div');
         item.style.left = `${itemConfig.left}%`;
@@ -1235,7 +1334,8 @@
 
     function harvestResource() {
       const nodes = RESOURCE_NODES[state.mapKey] || [];
-      const resourceKey = nodes[0];
+      const node = nodes[0];
+      const resourceKey = node?.key;
       if (!resourceKey) {
         statusLine.textContent = `Carte actuelle : ${maps[state.mapKey].name} • Rien à récolter ici pour le moment.`;
         return;
@@ -1256,7 +1356,8 @@
 
     function fightEnemy() {
       const mapEnemies = MAP_ENEMIES[state.mapKey] || [];
-      const enemyKey = mapEnemies[0];
+      const enemyNode = mapEnemies[0];
+      const enemyKey = enemyNode?.key;
       if (!enemyKey) {
         statusLine.textContent = `Carte actuelle : ${maps[state.mapKey].name} • Aucun ennemi ici.`;
         return;
@@ -1283,19 +1384,65 @@
       renderPanels();
     }
 
+    function questLabel(status) {
+      return {
+        available: 'disponible',
+        accepted: 'en cours',
+        ready: 'à rendre',
+        done: 'terminée',
+        locked: 'verrouillée',
+      }[status] || status;
+    }
+
+    function assetForItem(key) {
+      return ASSET_PATHS.resources[key] || ASSET_PATHS.craft[key] || ASSET_PATHS.jobs.botanique;
+    }
+
     function renderPanels() {
       jobsPanel.innerHTML = Object.entries(state.jobs)
-        .map(([key, job]) => `${JOBS[key].label} • niv ${job.level} • ${job.xp} XP`)
-        .join('<br>');
+        .map(([key, job]) => {
+          const nextXp = JOBS[key].xpTable[Math.min(job.level, JOBS[key].xpTable.length - 1)] || 'max';
+          return `
+            <div class="job-row">
+              <img class="job-icon" src="${ASSET_PATHS.jobs[key]}" alt="${JOBS[key].label}" />
+              <div>
+                <strong>${JOBS[key].label}</strong><br>
+                niv ${job.level} • ${job.xp} XP
+                <div class="badge-inline">palier suivant: ${nextXp}</div>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
 
       inventoryPanel.innerHTML = Object.entries(state.inventory)
         .filter(([, qty]) => qty > 0)
-        .map(([key, qty]) => `${RESOURCES[key]?.label || key} x${qty}`)
-        .join('<br>') || 'Inventaire vide';
+        .map(([key, qty]) => `
+          <div class="inventory-item">
+            <img src="${assetForItem(key)}" alt="${RESOURCES[key]?.label || key}" />
+            <div>
+              <strong>${RESOURCES[key]?.label || key}</strong><br>
+              Quantité: ${qty}
+            </div>
+          </div>
+        `)
+        .join('') || 'Inventaire vide';
 
       questPanel.innerHTML = Object.entries(QUESTS)
-        .map(([key, quest]) => `${quest.label} • ${state.questState[key]}`)
-        .join('<br>');
+        .map(([key, quest]) => `<strong>${quest.label}</strong><br>${quest.goal}<br><span class="badge-inline">${questLabel(state.questState[key])}</span>`)
+        .join('<br><br>');
+
+      craftPanel.innerHTML = Object.values(RECIPES)
+        .map(recipe => `
+          <div class="recipe-card">
+            <img src="${assetForItem(recipe.output)}" alt="${recipe.label}" />
+            <div>
+              <strong>${recipe.label}</strong><br>
+              ${Object.entries(recipe.ingredients).map(([key, qty]) => `${RESOURCES[key]?.label || key} x${qty}`).join(' • ')}
+            </div>
+          </div>
+        `)
+        .join('');
     }
 
     function renderMap() {

@@ -696,7 +696,7 @@
 <body>
   <main class="app">
     <section class="panel hero">
-      <div class="version-badge">v0.5.4</div>
+      <div class="version-badge">v0.5.5</div>
       <div>
         <div class="badge">Aslan • monde 3x3</div>
         <h1>Arcade kawai zone par zone</h1>
@@ -1030,11 +1030,16 @@
         feuille_medicinale: './assets/chapter1/resources/feuille-medicinale.jpg',
         bois_tendre: './assets/chapter1/resources/bois-tendre.jpg',
         jeune_branche: './assets/chapter1/resources/jeune-branche.jpg',
+        cuivre_brut: './assets/chapter1/resources/cuivre-brut.jpg',
+        eclat_mineral: './assets/chapter1/resources/eclat-mineral.jpg',
+        baie_doree: './assets/chapter1/resources/baie-doree.jpg',
       },
       nodes: {
         botanique: './assets/chapter1/metiers/botanique.jpg',
         bucheron: './assets/chapter1/metiers/bucheron.jpg',
         mineur: './assets/chapter1/metiers/mineur.jpg',
+        souche_recoltable: './assets/chapter1/nodes/souche-recoltable.jpg',
+        filon_mineral: './assets/chapter1/nodes/filon-mineral.jpg',
       },
       enemies: {
         pousse_sombre: './assets/chapter1/resources/feuille-medicinale.jpg',
@@ -1043,9 +1048,9 @@
       },
       craft: {
         fibre_vegetale: './assets/chapter1/metiers/botanique.jpg',
-        planche_simple: './assets/chapter1/metiers/bucheron.jpg',
+        planche_simple: './assets/chapter1/craft/planche-simple.jpg',
         poudre_minerale: './assets/chapter1/metiers/mineur.jpg',
-        sceau_passage: './assets/chapter1/pnj/chef-village-portrait.jpg',
+        sceau_passage: './assets/chapter1/craft/sceau-du-passage.jpg',
       },
     };
 
@@ -1065,6 +1070,7 @@
       pierre_friable: { label: 'Pierre friable', job: 'mineur', xp: 8, level: 1 },
       cuivre_brut: { label: 'Cuivre brut', job: 'mineur', xp: 10, level: 1 },
       eclat_mineral: { label: 'Éclat minéral', job: 'mineur', xp: 10, level: 1 },
+      baie_doree: { label: 'Baie dorée', job: 'botanique', xp: 12, level: 2 },
       griffe: { label: 'Griffe', type: 'loot' },
       dent: { label: 'Dent', type: 'loot' },
       essence: { label: 'Essence', type: 'loot' },
@@ -1087,6 +1093,7 @@
       ],
       '0,1': [
         { key: 'feuille_medicinale', left: 34, top: 60, chance: 0.8, respawnMs: 15000 },
+        { key: 'baie_doree', left: 63, top: 62, chance: 0.45, respawnMs: 26000 },
       ],
       '1,1': [],
       '2,1': [
@@ -1188,6 +1195,8 @@
 
     function resourceNodeAsset(resourceKey) {
       const resource = RESOURCES[resourceKey];
+      if (resourceKey === 'bois_tendre' || resourceKey === 'jeune_branche') return ASSET_PATHS.nodes.souche_recoltable;
+      if (resourceKey === 'pierre_friable' || resourceKey === 'cuivre_brut' || resourceKey === 'eclat_mineral') return ASSET_PATHS.nodes.filon_mineral;
       if (!resource?.job) return ASSET_PATHS.resources[resourceKey] || ASSET_PATHS.jobs.botanique;
       return ASSET_PATHS.resources[resourceKey] || ASSET_PATHS.nodes[resource.job];
     }
